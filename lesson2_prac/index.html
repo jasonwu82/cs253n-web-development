@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<ol>
+	{% for n in range(n) %}
+		{% if n % 15 == 0 %}
+			<li>FizzBuzz</li>
+		{% elif n%3 == 0 %}
+			<li>Fizz</li>
+		{% elif n%5 == 0 %}
+			<li>Buzz</li>
+		{% else %}
+			<li>{{n}}</li>
+		{% endif %}
+	{% endfor %}
+	
+
+</ol>
+{% endblock %}
