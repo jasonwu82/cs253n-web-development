@@ -67,7 +67,7 @@ class Signup_handler(webapp2.RequestHandler):
         signup_text = dict(self.request.POST.items())
         isValid = verify_signup(signup_text)
         if isValid:
-            self.response.set_cookie('username', signup_text['username'],path='/signup')
+            self.response.set_cookie('username', signup_text['username'],path='/')
             self.redirect('/signup/welcome')
         else:
             form_dict = signup_text.copy()
