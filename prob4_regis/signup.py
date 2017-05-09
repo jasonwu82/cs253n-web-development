@@ -4,22 +4,15 @@ import webapp2
 import cgi
 import string
 import re
-form = """
-<b>Sign Up</b>
-<br>
-<form id="textform" method="post">
-Username <input type="text" name="username" value="%(username)s"> %(error_usr)s<br>
-Password <input type="password" name="password" value="%(password)s"> %(error_password)s<br>
-Verify Password <input type="password" name="verify" value="%(verify)s"> %(error_verify_password)s<br>
-Email (optional)<input type="text" name="email" value="%(email)s"> %(error_email)s<br>
-    <input type="submit">
-</form>
-<br>
+import os
+import jinja2
 
-"""
 signup_text = {"username":"","password":"","verify":"","email":""}
 error_text = {"error_usr":"","error_password":"","error_verify_password":"","error_email":""}
-
+JINJA_ENVIRONMENT = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    extensions=['jinja2.ext.autoescape'],
+    autoescape=True)
 def valid_username(str):  
     USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
     return USER_RE.match(str)
@@ -65,21 +58,29 @@ class Signup_handler(webapp2.RequestHandler):
     def get(self):
         form_dict = signup_text.copy()
         form_dict.update(error_text)
-        self.response.write(form % form_dict)
+        
+        template = JINJA_ENVIRONMENT.get_template("signup.html")
+        template_values = form_dict
+        self.response.write(template.render(template_values))
+        
     def post(self):
         signup_text = dict(self.request.POST.items())
         isValid = verify_signup(signup_text)
         if isValid:
-            self.redirect('/signup/welcome?username='+signup_text["username"])
+            self.response.set_cookie('username', signup_text['username'],path='/signup')
+            self.redirect('/signup/welcome')
         else:
             form_dict = signup_text.copy()
             form_dict.update(error_text)
-            self.response.write(form % form_dict)
+            template = JINJA_ENVIRONMENT.get_template("signup.html")
+            template_values = form_dict
+            self.response.write(template.render(template_values))
+            
         
 class Welcome_handler(webapp2.RequestHandler):        
     welcome_form="Welcome, %(username)s !"
     def get(self):
-        username = self.request.get("username")
+        username = self.request.cookies.get('username')
         self.response.write(self.welcome_form % {"username":username})
         
         
