@@ -1,0 +1,14 @@
+{% extends "blog.html" %}
+{% block newPost %}
+    <hr>
+    <form method="post">
+      Subject<br>
+      <input type="text" name="subject" value=""><br>
+      Content<br>
+      <textarea name="content"  rows="6" cols="50" value=""></textarea>
+      <br><br>
+      <input type="submit" value="Submit">
+    </form>
+    <br>
+    {{error}}
+{% endblock %}
