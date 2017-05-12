@@ -19,6 +19,7 @@ import webapp2
 import jinja2
 from google.appengine.ext import ndb
 import blog_db
+import json
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -30,9 +31,17 @@ class BlogPage_handler(webapp2.RequestHandler):
         
         template = JINJA_ENVIRONMENT.get_template("blog.html")
         posts = blog_db.Post.query().fetch()
-        
-        
         self.response.write(template.render(posts=posts))
+
+# for blog mainpage json
+class BlogPage_json_handler(webapp2.RequestHandler):
+    def get(self):
+        posts = [p.to_dict() for p in blog_db.Post.query().fetch()]
+        for p in posts:
+            if p.get("created"):
+                p["created"] = str(p["created"])
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(posts))
         
 class Newpost_handler(webapp2.RequestHandler):
     def get(self):
@@ -61,7 +70,16 @@ class Post_id_handler(webapp2.RequestHandler):
             return
         self.response.write(template.render(subject=post.subject,content=post.content))
     
-    
+class Post_id_json_handler(webapp2.RequestHandler):
+    def get(self,post_str):
+        post_id = post_str.split(".")[0]
+        post = blog_db.Post.get_by_id(int(post_id))
+        post = post.to_dict()
+        if post and post.get("created"):
+            post["created"] = str(post["created"])
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(post))
+        
     
     
     

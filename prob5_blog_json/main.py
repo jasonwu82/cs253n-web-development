@@ -16,6 +16,9 @@ import os
 import urllib
 import webapp2
 import blog
+import signup
+import login
+import json
 form="""
 This is Hungwei's main page
 """
@@ -32,13 +35,22 @@ class MainPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template("index.html")
         template_values = {}
         self.response.write(template.render(template_values))
-
-
+class Main_page_json(webapp2.RequestHandler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write("")
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
+    ('/.json',blog.BlogPage_json_handler),
     (r'/blog/?',blog.BlogPage_handler),
+    (r'/blog/?.json',blog.BlogPage_json_handler),
     ('/blog/newpost',blog.Newpost_handler),
     (r'/blog/(\d+)', blog.Post_id_handler),
+    (r'/blog/(\d+).json', blog.Post_id_json_handler),
+    ('/blog/signup',signup.Signup_handler),
+    ('/blog/signup/welcome',signup.Welcome_handler),
+    ('/blog/login',login.Login_handler),
+    ('/blog/logout',signup.Logout_handler),
 ], debug=True)
 
