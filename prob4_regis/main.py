@@ -14,6 +14,7 @@
 
 import webapp2
 import signup
+import login
 form="""
 This is Hungwei's main page
 """
@@ -27,6 +28,8 @@ class MainPage(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', MainPage),
     ('/signup',signup.Signup_handler),
-    ('/signup/welcome',signup.Welcome_handler)
+    ('/signup/welcome',signup.Welcome_handler),
+    ('/login',login.Login_handler),
+    ('/logout',signup.Logout_handler)
 ], debug=True)
 

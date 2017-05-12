@@ -6,6 +6,7 @@ import string
 import re
 import os
 import jinja2
+import db_users
 
 signup_text = {"username":"","password":"","verify":"","email":""}
 error_text = {"error_usr":"","error_password":"","error_verify_password":"","error_email":""}
@@ -67,7 +68,19 @@ class Signup_handler(webapp2.RequestHandler):
         signup_text = dict(self.request.POST.items())
         isValid = verify_signup(signup_text)
         if isValid:
+            # store password in clear text currently
+            
+            
+            # check if exist
+            # delete all old same username (overwrite)
+            oldUsers = db_users.User.query(db_users.User.username.IN([signup_text["username"]])).fetch()
+            for u in oldUsers:
+                u.key.delete()
+            newUser = db_users.User(username=signup_text["username"],password=signup_text["password"])
+            newUser.put()
+            
             self.response.set_cookie('username', signup_text['username'],path='/')
+            self.response.set_cookie('token', db_users.user_encrypt_token(signup_text['username']),path='/')
             self.redirect('/signup/welcome')
         else:
             form_dict = signup_text.copy()
@@ -78,10 +91,33 @@ class Signup_handler(webapp2.RequestHandler):
             
         
 class Welcome_handler(webapp2.RequestHandler):        
-    welcome_form="Welcome, %(username)s !"
+    
     def get(self):
+        # no handle for non-exist user
         username = self.request.cookies.get('username')
-        self.response.write(self.welcome_form % {"username":username})
+        token = self.request.cookies.get('token')
+        template = JINJA_ENVIRONMENT.get_template("welcome.html")
+        if not username:
+            self.redirect('/signup')
+            print('not username')
+            return
+        #user = db_users.User.query(db_users.User.username.IN([signup_text["username"]])).fetch()
+        # check if user is in database
+        if not token:
+            print(token)
+            print("not user or not token")
+            self.redirect('/signup')
+            return
+        if not db_users.verify_token(username, token):
+            print('not verify token')
+            self.redirect('/signup')
+            return
+        self.response.write(template.render(username=username))
+        
+class Logout_handler(webapp2.RequestHandler):
+    def get(self):
+        self.response.set_cookie('token', "",path='/')
+        self.redirect('/signup')
         
         
         
