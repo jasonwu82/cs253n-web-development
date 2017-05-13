@@ -18,20 +18,32 @@ import webapp2
 
 import jinja2
 from google.appengine.ext import ndb
+from google.appengine.api import memcache
 import blog_db
 import json
+import logging
+import time
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-
+POSTS = "posts"
+query_time = time.time()
 class BlogPage_handler(webapp2.RequestHandler):
     def get(self):
+        global query_time
+        posts = memcache.get(POSTS)
+        if posts is None:
+            # read DB
+            logging.info("DB query")
+            query_time = time.time()
+            posts = blog_db.Post.query().fetch()
+            memcache.set(POSTS,posts)
         
         template = JINJA_ENVIRONMENT.get_template("blog.html")
-        posts = blog_db.Post.query().fetch()
-        self.response.write(template.render(posts=posts))
+        query_interval = time.time() - query_time
+        self.response.write(template.render(posts=posts,query_interval="%.1f" % query_interval))
 
 # for blog mainpage json
 class BlogPage_json_handler(webapp2.RequestHandler):
@@ -59,16 +71,34 @@ class Newpost_handler(webapp2.RequestHandler):
         # submit to database
         newpost = blog_db.Post(subject=subject,content=content)
         newpost.put()
+        # clear memcache
+        memcache.delete(POSTS)
+        
+        #add new post and query time to single post memcache
+        if not memcache.add(str(newpost.key.id), (newpost,time.time())):
+            logging.error("id already exist for new post")
         self.redirect('/blog/'+str(newpost.key.id()))
 
 class Post_id_handler(webapp2.RequestHandler):
     def get(self,post_id):
-        post = blog_db.Post.get_by_id(int(post_id))
+        #post = blog_db.Post.get_by_id(int(post_id))
+        # get single post and query time
+        singlepost_cached = memcache.get(post_id)
+        prev_qeury_time = None
+        post = None
+        if not singlepost_cached:
+            logging.info("get single post with DB query")
+            post = blog_db.Post.get_by_id(int(post_id))
+            prev_qeury_time = time.time()
+            memcache.set(post_id,(post,prev_qeury_time))
+        else:
+            post, prev_qeury_time = singlepost_cached
         template = JINJA_ENVIRONMENT.get_template("single_post.html")
         if not post:
             self.response.write(template.render(error="Can't find the post with this id!"))
             return
-        self.response.write(template.render(subject=post.subject,content=post.content))
+        self.response.write(template.render(subject=post.subject,
+            content=post.content,query_interval="%.1f" % (time.time()-prev_qeury_time)))
     
 class Post_id_json_handler(webapp2.RequestHandler):
     def get(self,post_str):

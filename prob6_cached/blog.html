@@ -14,17 +14,19 @@
     
     {% for p in posts %}
         <p>
-        Subject: {{p.subject}}
-        <br>
-        Content: {{p.content}}
+        <h4>{{p.subject}}</h4>
+        <hr>
+        <p style="padding-left: 30px;">{{p.content}}</p>
         <br>
         </p>
     {% endfor %}
-    
+<br>
+Queried {{query_interval}} seconds ago    
 {% endblock %}
 
 {% block newPost %}
 {% endblock %}
 </div>
+
 {% endblock %}
 
