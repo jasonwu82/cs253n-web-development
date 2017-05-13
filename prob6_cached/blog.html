@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div>
+<h2> Welcome to Hungwei's Blog !</h2>
+</div>
+<div>
+    <form action="/blog/newpost" method="get">
+        <button type="submit">New post</button>
+    </form>
+</div>
+<br>
+<div>
+{% block all_posts %}
+    
+    {% for p in posts %}
+        <p>
+        Subject: {{p.subject}}
+        <br>
+        Content: {{p.content}}
+        <br>
+        </p>
+    {% endfor %}
+    
+{% endblock %}
+
+{% block newPost %}
+{% endblock %}
+</div>
+{% endblock %}
+
