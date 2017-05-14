@@ -52,5 +52,6 @@ app = webapp2.WSGIApplication([
     ('/blog/signup/welcome',signup.Welcome_handler),
     ('/blog/login',login.Login_handler),
     ('/blog/logout',signup.Logout_handler),
+    ('/blog/flush',blog.Flush_handler)
 ], debug=True)
 

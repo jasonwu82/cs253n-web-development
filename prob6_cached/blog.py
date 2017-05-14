@@ -110,7 +110,10 @@ class Post_id_json_handler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(post))
         
-    
+class Flush_handler(webapp2.RequestHandler):
+    def get(self):  
+        memcache.flush_all()
+        self.redirect('/blog')
     
     
     
