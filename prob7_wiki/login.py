@@ -3,7 +3,7 @@ import jinja2
 import os
 import db_users
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    loader=jinja2.FileSystemLoader('templates/'),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
     

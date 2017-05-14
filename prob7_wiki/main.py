@@ -26,7 +26,7 @@ import jinja2
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    loader=jinja2.FileSystemLoader('templates/'),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
@@ -40,10 +40,11 @@ class Main_page_json(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write("")
 
-app = webapp2.WSGIApplication([
+main_url_mapping = [
     ('/', MainPage),
-    ('/.json',blog.BlogPage_json_handler),
-    (r'/blog/?',blog.BlogPage_handler),
+    ('/.json',blog.BlogPage_json_handler), 
+]
+blog_url_mapping = [(r'/blog/?',blog.BlogPage_handler),
     (r'/blog/?.json',blog.BlogPage_json_handler),
     ('/blog/newpost',blog.Newpost_handler),
     (r'/blog/(\d+)', blog.Post_id_handler),
@@ -53,5 +54,15 @@ app = webapp2.WSGIApplication([
     ('/blog/login',login.Login_handler),
     ('/blog/logout',signup.Logout_handler),
     ('/blog/flush',blog.Flush_handler)
-], debug=True)
+    ]
+    
+wiki_url_mapping = [
+    ('/wiki/signup',signup.Signup_handler),
+    ('/wiki/signup/welcome',signup.Welcome_handler),
+    ('/wiki/login',login.Login_handler),
+    ('/wiki/logout',signup.Logout_handler),
+    ('/wiki/flush',blog.Flush_handler)
+]
+all_url_mapping = main_url_mapping + blog_url_mapping + wiki_url_mapping
+app = webapp2.WSGIApplication(all_url_mapping, debug=True)
 

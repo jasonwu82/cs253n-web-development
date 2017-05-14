@@ -11,7 +11,7 @@ import db_users
 signup_text = {"username":"","password":"","verify":"","email":""}
 error_text = {"error_usr":"","error_password":"","error_verify_password":"","error_email":""}
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    loader=jinja2.FileSystemLoader('templates/'),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 def valid_username(str):  

@@ -25,7 +25,7 @@ import logging
 import time
 
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+    loader=jinja2.FileSystemLoader('templates/'),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 POSTS = "posts"
