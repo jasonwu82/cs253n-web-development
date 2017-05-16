@@ -18,6 +18,7 @@ import webapp2
 import blog
 import signup
 import login
+import wiki
 import json
 form="""
 This is Hungwei's main page
@@ -57,11 +58,14 @@ blog_url_mapping = [(r'/blog/?',blog.BlogPage_handler),
     ]
     
 wiki_url_mapping = [
+    
     ('/wiki/signup',signup.Signup_handler),
     ('/wiki/signup/welcome',signup.Welcome_handler),
     ('/wiki/login',login.Login_handler),
     ('/wiki/logout',signup.Logout_handler),
-    ('/wiki/flush',blog.Flush_handler)
+    ('/wiki/flush',blog.Flush_handler),
+    (r'/wiki/_edit/?\w*',wiki.WikiPage_edit_handler),
+    (r'/wiki/?\w*',wiki.WikiPage_handler),
 ]
 all_url_mapping = main_url_mapping + blog_url_mapping + wiki_url_mapping
 app = webapp2.WSGIApplication(all_url_mapping, debug=True)

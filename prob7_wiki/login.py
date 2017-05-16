@@ -31,9 +31,6 @@ class Login_handler(webapp2.RequestHandler):
             self.response.write(template.render(error=error))
             return
         self.response.set_cookie('username', username,path='/')
-        self.redirect('/signup/welcome')
+        self.response.set_cookie('token', db_users.user_encrypt_token(username),path='/')
+        self.redirect('/wiki/signup/welcome')
         
-JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-    extensions=['jinja2.ext.autoescape'],
-    autoescape=True)
